@@ -1,0 +1,142 @@
+Question 2: Create an alertDialog form with name, last name, email, and phone number and store all data in shared preferences and show it in UI after submitting the data. What will be your approach to solving this problem statement?
+
+Hint 1:- Use the alert dialog box and textformfield.
+
+Hint 2:- Use the shared preferences library to store the data of all fields.
+
+source code:
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+void main() {
+  runApp(MaterialApp(
+    home: SharedPrefFormScreen(),
+    debugShowCheckedModeBanner: false,
+  ));
+}
+
+class SharedPrefFormScreen extends StatefulWidget {
+  @override
+  _SharedPrefFormScreenState createState() => _SharedPrefFormScreenState();
+}
+
+class _SharedPrefFormScreenState extends State<SharedPrefFormScreen> {
+  String? name, lastName, email, phone;
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  // Load saved data from SharedPreferences
+  Future<void> loadData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      name = prefs.getString('name') ?? '';
+      lastName = prefs.getString('lastName') ?? '';
+      email = prefs.getString('email') ?? '';
+      phone = prefs.getString('phone') ?? '';
+    });
+  }
+
+  // Show AlertDialog Form
+  void showFormDialog() {
+    final _formKey = GlobalKey<FormState>();
+    TextEditingController nameController = TextEditingController(text: name);
+    TextEditingController lastNameController =
+        TextEditingController(text: lastName);
+    TextEditingController emailController = TextEditingController(text: email);
+    TextEditingController phoneController = TextEditingController(text: phone);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Enter Details"),
+        content: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: "First Name"),
+                  validator: (value) =>
+                      value!.isEmpty ? "Please enter first name" : null,
+                ),
+                TextFormField(
+                  controller: lastNameController,
+                  decoration: const InputDecoration(labelText: "Last Name"),
+                  validator: (value) =>
+                      value!.isEmpty ? "Please enter last name" : null,
+                ),
+                TextFormField(
+                  controller: emailController,
+                  decoration: const InputDecoration(labelText: "Email"),
+                  validator: (value) =>
+                      value!.isEmpty ? "Please enter email" : null,
+                ),
+                TextFormField(
+                  controller: phoneController,
+                  decoration: const InputDecoration(labelText: "Phone Number"),
+                  keyboardType: TextInputType.phone,
+                  validator: (value) =>
+                      value!.isEmpty ? "Please enter phone number" : null,
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (_formKey.currentState!.validate()) {
+                SharedPreferences prefs =
+                    await SharedPreferences.getInstance();
+                await prefs.setString('name', nameController.text);
+                await prefs.setString('lastName', lastNameController.text);
+                await prefs.setString('email', emailController.text);
+                await prefs.setString('phone', phoneController.text);
+
+                Navigator.pop(context);
+                loadData(); // Refresh UI
+              }
+            },
+            child: const Text("Submit"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("SharedPreferences Form")),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ElevatedButton(
+              onPressed: showFormDialog,
+              child: const Text("Open Form"),
+            ),
+            const SizedBox(height: 20),
+            const Text("Saved Data:", style: TextStyle(fontSize: 18)),
+            const SizedBox(height: 10),
+            Text("First Name: ${name ?? ''}"),
+            Text("Last Name: ${lastName ?? ''}"),
+            Text("Email: ${email ?? ''}"),
+            Text("Phone: ${phone ?? ''}"),
+          ],
+        ),
+      ),
+    );
+  }
+}
