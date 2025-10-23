@@ -1,0 +1,67 @@
+Question 17: Show the start and end date in the date picker. But the end date should be 29 days ago from the start date. What will be your approach to getting this problem statement?
+
+
+Hint 1:- Use the date picker library for selecting the start and end date.
+
+Hint 2:- Add the logic which is end data should be 29 days ago from the start date.
+
+source code:
+
+import 'package:flutter/material.dart';
+
+class DateRangePickerExample extends StatefulWidget {
+  const DateRangePickerExample({super.key});
+
+  @override
+  State<DateRangePickerExample> createState() => _DateRangePickerExampleState();
+}
+
+class _DateRangePickerExampleState extends State<DateRangePickerExample> {
+  DateTime? startDate;
+  DateTime? endDate;
+
+  Future<void> _selectStartDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+    );
+
+    if (picked != null) {
+      setState(() {
+        startDate = picked;
+        // end date should be 29 days ago from start date
+        endDate = startDate!.subtract(const Duration(days: 29));
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Date Picker Example')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () => _selectStartDate(context),
+              child: const Text('Select Start Date'),
+            ),
+            const SizedBox(height: 20),
+            if (startDate != null)
+              Text('Start Date: ${startDate!.toLocal()}'.split(' ')[0],
+                  style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: 10),
+            if (endDate != null)
+              Text('End Date (29 days before): ${endDate!.toLocal()}'.split(' ')[0],
+                  style: const TextStyle(fontSize: 18, color: Colors.blue)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
