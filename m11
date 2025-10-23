@@ -1,0 +1,84 @@
+Question 16: How to Show this result based on the given details:
+
+True-answers=6
+Wrong -answers=0
+Total-questions=6
+
+ 
+
+q08-2.png
+
+ 
+
+Hint 1:- Use imageview and textview, containers for showing the image and text.
+
+Hint 2:- Add the logicfor showing the result based on true, and false values out of total questions.
+source code :
+import 'package:flutter/material.dart';
+
+class ResultScreen extends StatelessWidget {
+  final int trueAnswers;
+  final int wrongAnswers;
+  final int totalQuestions;
+
+  const ResultScreen({
+    super.key,
+    required this.trueAnswers,
+    required this.wrongAnswers,
+    required this.totalQuestions,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Calculate the score percentage
+    double scorePercent = (trueAnswers / totalQuestions) * 100;
+
+    // Choose image and message based on performance
+    String resultImage;
+    String resultMessage;
+
+    if (scorePercent == 100) {
+      resultImage = 'assets/success.png';
+      resultMessage = 'Perfect! You got all answers right! 🎉';
+    } else if (scorePercent >= 50) {
+      resultImage = 'assets/good.png';
+      resultMessage = 'Good job! You scored $trueAnswers out of $totalQuestions.';
+    } else {
+      resultImage = 'assets/try_again.png';
+      resultMessage = 'Keep trying! You scored $trueAnswers out of $totalQuestions.';
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Quiz Result'),
+        centerTitle: true,
+      ),
+      body: Center(
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(resultImage, height: 200),
+              const SizedBox(height: 20),
+              Text(
+                resultMessage,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Correct: $trueAnswers\nWrong: $wrongAnswers\nTotal: $totalQuestions',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 18),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
