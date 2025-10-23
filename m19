@@ -1,0 +1,94 @@
+Question 24: You have two buttons A & B . When you click on the A button the image will be shown and you click on the B button then your name, phone number, and email will be shown. How will you achieve this problem statement?
+
+Hint 1:- Add the flag to show the different-2 data on click of buttons.
+
+Hint 2:- Add text in the column for showing the name, phone number, and email.
+
+Hint 3:- Add imageView to show the image.
+
+Hint 4:- Add the image to the assets folder.
+source code:
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MaterialApp(
+    home: ButtonToggleExample(),
+    debugShowCheckedModeBanner: false,
+  ));
+}
+
+class ButtonToggleExample extends StatefulWidget {
+  @override
+  _ButtonToggleExampleState createState() => _ButtonToggleExampleState();
+}
+
+class _ButtonToggleExampleState extends State<ButtonToggleExample> {
+  bool showImage = false; // flag to determine what to show
+
+  void showImageContent() {
+    setState(() {
+      showImage = true;
+    });
+  }
+
+  void showTextContent() {
+    setState(() {
+      showImage = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Button Toggle Example")),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Display either Image or Text
+            showImage
+                ? Image.asset(
+                    'assets/sample_image.png', // Add your image in assets folder
+                    width: 200,
+                    height: 200,
+                  )
+                : Column(
+                    children: const [
+                      Text(
+                        "Name: John Doe",
+                        style: TextStyle(fontSize: 20),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        "Phone: +91 1234567890",
+                        style: TextStyle(fontSize: 20),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        "Email: john@example.com",
+                        style: TextStyle(fontSize: 20),
+                      ),
+                    ],
+                  ),
+            const SizedBox(height: 30),
+            // Buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: showImageContent,
+                  child: const Text("Button A"),
+                ),
+                const SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: showTextContent,
+                  child: const Text("Button B"),
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
