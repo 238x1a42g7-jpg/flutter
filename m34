@@ -1,0 +1,97 @@
+Question 10: Create a Provider that provides a counter value and a function to reset the counter to zero. Display the counter value in another widget and use a button to reset the counter.
+
+source code:
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+// Step 1: Counter Provider
+class CounterProvider with ChangeNotifier {
+  int _counter = 0;
+
+  int get counter => _counter;
+
+  void increment() {
+    _counter++;
+    notifyListeners();
+  }
+
+  void reset() {
+    _counter = 0;
+    notifyListeners();
+  }
+}
+
+void main() {
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => CounterProvider(),
+      child: const MyApp(),
+    ),
+  );
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: const CounterScreen(),
+    );
+  }
+}
+
+// Step 2: Main Screen
+class CounterScreen extends StatelessWidget {
+  const CounterScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final counterProvider = Provider.of<CounterProvider>(context, listen: false);
+
+    return Scaffold(
+      appBar: AppBar(title: const Text("Counter with Reset")),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              "Counter Value:",
+              style: TextStyle(fontSize: 24),
+            ),
+            const SizedBox(height: 10),
+            // Display counter value in another widget
+            Consumer<CounterProvider>(
+              builder: (context, provider, child) {
+                return Text(
+                  "${provider.counter}",
+                  style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+                );
+              },
+            ),
+            const SizedBox(height: 30),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    counterProvider.increment();
+                  },
+                  child: const Text("Increment"),
+                ),
+                const SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    counterProvider.reset();
+                  },
+                  child: const Text("Reset"),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
