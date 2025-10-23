@@ -1,0 +1,80 @@
+Question 8: Create a simple Provider that provides a counter value and a button to increment the counter. Display the counter value in another widget.
+
+source codew:
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+// Step 1: Create Counter Provider
+class CounterProvider with ChangeNotifier {
+  int _counter = 0;
+
+  int get counter => _counter;
+
+  void increment() {
+    _counter++;
+    notifyListeners(); // Notify listeners to rebuild UI
+  }
+}
+
+void main() {
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => CounterProvider(),
+      child: const MyApp(),
+    ),
+  );
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: const CounterScreen(),
+    );
+  }
+}
+
+// Step 2: Main Screen
+class CounterScreen extends StatelessWidget {
+  const CounterScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final counterProvider = Provider.of<CounterProvider>(context, listen: false);
+
+    return Scaffold(
+      appBar: AppBar(title: const Text("Provider Counter Example")),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              "Counter Value:",
+              style: TextStyle(fontSize: 24),
+            ),
+            const SizedBox(height: 10),
+            // Step 3: Display counter in another widget
+            Consumer<CounterProvider>(
+              builder: (context, provider, child) {
+                return Text(
+                  "${provider.counter}",
+                  style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+                );
+              },
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: () {
+                counterProvider.increment();
+              },
+              child: const Text("Increment Counter"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
