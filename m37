@@ -1,0 +1,65 @@
+Question 3: Your client has engaged you to create a slide animation featuring an image as part of their project.
+
+source code:
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: SlideImageExample(),
+  ));
+}
+
+class SlideImageExample extends StatefulWidget {
+  @override
+  _SlideImageExampleState createState() => _SlideImageExampleState();
+}
+
+class _SlideImageExampleState extends State<SlideImageExample>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(-1.0, 0.0), // Start off-screen to the left
+      end: const Offset(0.0, 0.0), // End at original position
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+
+    _controller.forward(); // Start animation on screen load
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Slide Image Animation")),
+      body: Center(
+        child: SlideTransition(
+          position: _slideAnimation,
+          child: Image.network(
+            'https://images.pexels.com/photos/213780/pexels-photo-213780.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500',
+            width: 250,
+            height: 250,
+          ),
+        ),
+      ),
+    );
+  }
+}
