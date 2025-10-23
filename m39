@@ -1,0 +1,120 @@
+Question 5: Create a Flutter program to fetch all image links and accompanying text from a Firestore collection and present them in cards with a left-to-right slide transition effect. Ensure the cards are scrollable.
+
+source code:
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: const CardsListScreen(),
+    );
+  }
+}
+
+class CardsListScreen extends StatefulWidget {
+  const CardsListScreen({super.key});
+
+  @override
+  _CardsListScreenState createState() => _CardsListScreenState();
+}
+
+class _CardsListScreenState extends State<CardsListScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(-1.0, 0.0), // slide from left
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Firestore Cards")),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('cards').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return const Center(child: Text("Something went wrong"));
+          }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final cards = snapshot.data!.docs;
+
+          if (cards.isEmpty) {
+            return const Center(child: Text("No cards found"));
+          }
+
+          return ListView.builder(
+            scrollDirection: Axis.vertical,
+            itemCount: cards.length,
+            itemBuilder: (context, index) {
+              var data = cards[index].data() as Map<String, dynamic>;
+              return SlideTransition(
+                position: _slideAnimation,
+                child: Card(
+                  margin: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 10),
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  child: Column(
+                    children: [
+                      Image.network(
+                        data['imageUrl'],
+                        height: 200,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          data['title'] ?? 'No Title',
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
