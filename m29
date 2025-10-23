@@ -1,0 +1,63 @@
+Question 5: How to move a widget from the top left corner to the right bottom corner by clicking on a button?
+
+Hint 1:- Use an image widget or container.
+
+Hint 2:- Use Align widget for moving.
+
+source code:
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MaterialApp(
+    home: MoveWidgetScreen(),
+    debugShowCheckedModeBanner: false,
+  ));
+}
+
+class MoveWidgetScreen extends StatefulWidget {
+  @override
+  _MoveWidgetScreenState createState() => _MoveWidgetScreenState();
+}
+
+class _MoveWidgetScreenState extends State<MoveWidgetScreen> {
+  Alignment _alignment = Alignment.topLeft;
+
+  void moveWidget() {
+    setState(() {
+      _alignment = _alignment == Alignment.topLeft
+          ? Alignment.bottomRight
+          : Alignment.topLeft;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Move Widget Example")),
+      body: Stack(
+        children: [
+          AnimatedAlign(
+            alignment: _alignment,
+            duration: const Duration(seconds: 1),
+            curve: Curves.easeInOut,
+            child: Container(
+              width: 100,
+              height: 100,
+              color: Colors.blue,
+              child: const Center(
+                child: Text(
+                  "Move Me",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: moveWidget,
+        child: const Icon(Icons.play_arrow),
+      ),
+    );
+  }
+}
