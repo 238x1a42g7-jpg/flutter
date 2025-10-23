@@ -1,0 +1,126 @@
+Question 10: Create a Flutter application using Riverpod state management where pressing a button changes the background color of the appBar and Scaffold, as well as plays one of 10 music notes. 
+
+ 
+
+        
+
+ 
+
+ 
+
+ 
+
+source code:
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:math';
+import 'package:audioplayers/audioplayers.dart';
+
+void main() {
+  runApp(const ProviderScope(child: MyApp()));
+}
+
+// State class
+class AppState {
+  final Color scaffoldColor;
+  final Color appBarColor;
+  final String currentNote;
+
+  AppState({
+    required this.scaffoldColor,
+    required this.appBarColor,
+    required this.currentNote,
+  });
+}
+
+// Riverpod StateNotifier
+class AppStateNotifier extends StateNotifier<AppState> {
+  final Random _random = Random();
+  final AudioPlayer _player = AudioPlayer();
+  final List<String> notes = [
+    'note1.mp3',
+    'note2.mp3',
+    'note3.mp3',
+    'note4.mp3',
+    'note5.mp3',
+    'note6.mp3',
+    'note7.mp3',
+    'note8.mp3',
+    'note9.mp3',
+    'note10.mp3',
+  ];
+
+  AppStateNotifier()
+      : super(AppState(
+          scaffoldColor: Colors.white,
+          appBarColor: Colors.blue,
+          currentNote: 'note1.mp3',
+        ));
+
+  void changeColorAndPlayNote() async {
+    // Generate random colors
+    final scaffoldColor = Color.fromARGB(
+      255,
+      _random.nextInt(256),
+      _random.nextInt(256),
+      _random.nextInt(256),
+    );
+    final appBarColor = Color.fromARGB(
+      255,
+      _random.nextInt(256),
+      _random.nextInt(256),
+      _random.nextInt(256),
+    );
+
+    // Pick random note
+    final note = notes[_random.nextInt(notes.length)];
+
+    // Update state
+    state = AppState(
+      scaffoldColor: scaffoldColor,
+      appBarColor: appBarColor,
+      currentNote: note,
+    );
+
+    // Play note
+    await _player.play(AssetSource('notes/$note'));
+  }
+}
+
+// Riverpod provider
+final appStateProvider =
+    StateNotifierProvider<AppStateNotifier, AppState>((ref) {
+  return AppStateNotifier();
+});
+
+// Main App
+class MyApp extends ConsumerWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appState = ref.watch(appStateProvider);
+
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        backgroundColor: appState.scaffoldColor,
+        appBar: AppBar(
+          title: const Text("Music & Color App"),
+          backgroundColor: appState.appBarColor,
+        ),
+        body: Center(
+          child: ElevatedButton(
+            onPressed: () {
+              ref.read(appStateProvider.notifier).changeColorAndPlayNote();
+            },
+            child: const Text(
+              "Change Color & Play Note",
+              style: TextStyle(fontSize: 20),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
