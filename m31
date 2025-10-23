@@ -1,0 +1,122 @@
+Question 7: Create a Form with two TextFormFields that require user input and a button to submit the form. Use the Provider package to pass the form data to another widget.
+source code:
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+// Provider class to hold form data
+class FormDataProvider with ChangeNotifier {
+  String firstName = "";
+  String lastName = "";
+
+  void updateData(String fName, String lName) {
+    firstName = fName;
+    lastName = lName;
+    notifyListeners();
+  }
+}
+
+void main() {
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => FormDataProvider(),
+      child: const MyApp(),
+    ),
+  );
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: const FormScreen(),
+    );
+  }
+}
+
+// Form Screen
+class FormScreen extends StatefulWidget {
+  const FormScreen({super.key});
+
+  @override
+  _FormScreenState createState() => _FormScreenState();
+}
+
+class _FormScreenState extends State<FormScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Form with Provider")),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: _firstNameController,
+                    decoration: const InputDecoration(
+                      labelText: "First Name",
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) =>
+                        value!.isEmpty ? "Enter first name" : null,
+                  ),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: _lastNameController,
+                    decoration: const InputDecoration(
+                      labelText: "Last Name",
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) =>
+                        value!.isEmpty ? "Enter last name" : null,
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        // Update provider with form data
+                        Provider.of<FormDataProvider>(context, listen: false)
+                            .updateData(_firstNameController.text,
+                                _lastNameController.text);
+                      }
+                    },
+                    child: const Text("Submit"),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 30),
+            // Display data using provider
+            Consumer<FormDataProvider>(
+              builder: (context, formData, child) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "First Name: ${formData.firstName}",
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                    Text(
+                      "Last Name: ${formData.lastName}",
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
